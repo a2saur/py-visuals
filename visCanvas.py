@@ -52,7 +52,7 @@ IGNORE_CHARS = [
 ]
 
 class Dot():
-    def __init__(self, color:str="white", outline:str="white", r:int=5, x:int=0, y:int=0):
+    def __init__(self, color:str="white", outline:str="white", r:int=5, x:int=0, y:int=0, gravityScale:float=0):
         '''
         Sets up a dot sprite
         
@@ -67,6 +67,8 @@ class Dot():
         :type x: int
         :param y: the y position of the center of the dot
         :type y: int
+        :param gravityScale: the amount of gravity that will be applied to the object, where 1 corresponds to +1 pixel/frame
+        :type gravityScale: float
         '''
         self.r = r
         self.x = x
@@ -75,6 +77,10 @@ class Dot():
         self.dX = 0
         self.dY = 0
         self.endChange = 0
+
+        self.vX = 0
+        self.vY = 0
+        self.gravityScale = gravityScale
 
         self.targetR = 0
         self.dR = 0
@@ -154,6 +160,14 @@ class Dot():
         else:
             self.targetR = newR
             self.dR = (self.targetR-self.r)/duration
+    
+    def add_velocity(self, vX=0, vY=0):
+        self.vX += vX
+        self.vY += vY
+
+    def set_velocity(self, vX=0, vY=0):
+        self.vX = vX
+        self.vY = vY
 
     def change_color(self, newColor:str):
         '''
@@ -183,8 +197,10 @@ class Dot():
             self.wait -= 1
             self.endChange += 1
         else:
-            if self.dX != 0 or self.dY != 0:
+            if self.vX != 0 or self.vY != 0:
+                self.change_pos(self.x+self.vX, self.y+self.vY)
 
+            if self.dX != 0 or self.dY != 0:
                 self.change_pos(self.x+self.dX, self.y+self.dY)
 
                 if framesPassed >= self.endChange:
@@ -197,6 +213,9 @@ class Dot():
                     self.change_size(self.targetR)
                 else:
                     self.change_size(self.r+self.dR)
+            
+            # TODO: check if on ground
+            self.vY += self.gravityScale
 
 class Text():
     def __init__(self, text:str, width:int, x:int=0, y:int=0, font=("Calibri", 50), color:str="#000000", justify:str="left", autoSize:bool=True, maxHeight:int=100):

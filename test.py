@@ -17,17 +17,17 @@ canvas.pack()
 cv = visC.VisCanvas(canvas, WIDTH, HEIGHT)
 
 ### CODE START -- initial setup
-cv.add_sprite(visC.Dot("#FFF", "#FFF", 10, 50, 50), "dot")
+cv.add_sprite(visC.Dot("#FFF", "#FFF", 10, 50, 50, 0.5), "dot")
 keyCodeText = visC.Text("Hello", 500, 100, 150, color="#FFF")
 cv.add_sprite(keyCodeText, "text")
 keyCodeText2 = visC.Text("A", 500, 100, 300, color="#FFF")
 cv.add_sprite(keyCodeText2, "text")
-cv.start_text_input()
+# cv.start_text_input()
 ### CODE END
 
-for sprite in cv.get_sprites_with_tag("dot"):
-    sprite.delay(30)
-    sprite.change_pos(200, 100, 30)
+# for sprite in cv.get_sprites_with_tag("dot"):
+#     sprite.delay(30)
+#     sprite.change_pos(200, 100, 30)
 
 
 def onKeyPress(event):
