@@ -1,6 +1,5 @@
 import tkinter as tk
 from datetime import datetime, timezone, timedelta
-from PIL import Image, ImageTk
 import visCanvas as visC
 
 ### CODE START -- overall parameters
@@ -18,12 +17,11 @@ cv = visC.VisCanvas(canvas, WIDTH, HEIGHT)
 
 ### CODE START -- initial setup
 cv.add_sprite(visC.Dot("#FFF", "#FFF", 10, 50, 50, 0.5), "dot")
-cv.add_sprite(visC.Rect("#000", "#FFF", 500, 100, 100, 150), "rect")
-keyCodeText = visC.Text("Hello", 500, 100, 150, color="#FFF", autoSize=False)
+keyCodeText = visC.Text("Hello", 500, 100, 150, color="#FFF")
 cv.add_sprite(keyCodeText, "text")
-keyCodeText2 = visC.Text("A", 500, 100, 300, color="#FFF", autoSize=True)
+keyCodeText2 = visC.Text("A", 500, 100, 300, color="#FFF")
 cv.add_sprite(keyCodeText2, "text")
-cv.start_text_input()
+# cv.start_text_input()
 ### CODE END
 
 # for sprite in cv.get_sprites_with_tag("dot"):
