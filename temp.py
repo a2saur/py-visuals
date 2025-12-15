@@ -11,6 +11,16 @@ import time
 WIDTH = 800
 HEIGHT = 480
 
+DOT_MAP_RADIUS = 5
+DOT_POS_RADIUS = 5
+
+dot_map_sizing = {
+    "scale":300,
+    "x":50,
+    "y":125,
+    "rotation":135
+}
+
 TIME_SCALE = 1
 STOP = False
 
@@ -23,13 +33,33 @@ DRIVER_POS_DOT_INFO = {
 }
 
 mapInfo = {
-    "Monaco":{"scale":0.37, "x":15, "y":75, "dot-rotation":-135, "dot-x":-117, "dot-y":-56, "dot-scale":365}
+    "Monaco":{"scale":0.37, "x":15, "y":75, "dot-rotation":-135, "dot-x":-130, "dot-y":-55, "dot-scale":360}
 }
 
 root = tk.Tk(screenName="F1 Display")
 # root.configure(bg='#47484a') 
 canvas = tk.Canvas(root, width=WIDTH, height=HEIGHT, bg="#47484a")
 canvas.pack()
+
+def key_pressed(event, scale=1):
+    global dot_map_sizing
+
+    print("Key Pressed: "+event.keysym)
+    if event.keysym == "Up":
+        dot_map_sizing["y"] -= scale
+    elif event.keysym == "Down":
+        dot_map_sizing["y"] += scale
+    elif event.keysym == "Left":
+        dot_map_sizing["x"] -= scale
+    elif event.keysym == "Right":
+        dot_map_sizing["x"] += scale
+    elif event.keysym == "equal":
+        dot_map_sizing["scale"] += scale
+    elif event.keysym == "minus":
+        dot_map_sizing["scale"] -= scale
+    
+    print(dot_map_sizing)
+
 
 class Dot():
     def __init__(self, color="white", outline="white", r=5, x=0, y=0):
@@ -264,7 +294,7 @@ def f1_setup_race(session_key=-1):
     # --- get session key ---
     if session_key == -1:
         # f1Data["session-key"] = random.randrange(1, 9928)
-        f1Data["session-key"] = 9088
+        f1Data["session-key"] = 9971
     else:
         f1Data["session-key"] = session_key
     DEBUG("Session: "+str(f1Data["session-key"]))
@@ -434,7 +464,7 @@ def f1_update():
         f1Data["raceSetup"] = False
     
     # f1Timestamp += timedelta(microseconds=32*TIME_SCALE)
-    f1Timestamp += timedelta(seconds=1)
+    f1Timestamp += timedelta(seconds=0.5)
     f1RaceTimeSubtitle.change_text(f1Timestamp.strftime("%H:%M:%S, %m/%d/%Y"))
     
     for sprite in f1Sprites:
@@ -504,5 +534,13 @@ f1Sprites.append(f1RaceTitle)
 f1Sprites.append(f1RaceSubtitle)
 f1Sprites.append(f1RaceTimeSubtitle)
 
+# Bind key presses to the root window
+root.bind("<Key>", key_pressed)
+
+# Make sure the root window has focus
+root.focus_force()  # forces the window to take focus
+
 update()
+
+
 root.mainloop()

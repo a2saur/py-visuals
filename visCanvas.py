@@ -703,3 +703,7 @@ class VisCanvas():
     
     def get_text_input(self) -> str:
         return self.textInput
+    
+    def update_mouse_click(self, clickX, clickY):
+        # TODO check buttons
+        return

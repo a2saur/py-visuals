@@ -39,6 +39,15 @@ def onKeyPress(event):
     keyCodeText2.change_text(cv.get_text_input())
     ### CODE END
 
+def get_mouse_coords(event):
+    clickX = event.x
+    clickY = event.y
+
+    cv.update_mouse_click(clickX, clickY)
+    ### CODE START - handle mouse click
+    
+    ### CODE END
+
 
 def update():
     ### CODE START - general update stuff
