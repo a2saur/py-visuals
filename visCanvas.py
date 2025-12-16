@@ -377,6 +377,118 @@ class Rect(Sprite):
                 else:
                     self.change_size(self.h+self.dh)
 
+class Slider(Sprite):
+    def __init__(self, color:str="white", outline:str="white", w:int=5, h:int=5, x:int=0, y:int=0, gravityScale:float=0):
+        '''
+        Sets up a rectangle sprite
+        
+        :param self: n/a
+        :param color: a hex code for the color of the dot
+        :type color: str
+        :param outline: a hex code for the color of the outline
+        :type outline: str
+        :param w: the width of the rectangle
+        :type w: int
+        :param h: the height of the rectangle
+        :type h: int
+        :param x: the x position of the upper left corner of the rectangle
+        :type x: int
+        :param y: the y position of the upper left corner of the rectangle
+        :type y: int
+        :param gravityScale: the amount of gravity that will be applied to the object, where 1 corresponds to +1 pixel/frame
+        :type gravityScale: float
+        '''
+        super().__init__(x, y, gravityScale)
+
+        self.w = w
+        self.h = h
+
+        self.targetW = 0
+        self.dW = 0
+        self.targetH = 0
+        self.dH = 0
+
+        self.wait = 0
+
+        self.color = color
+        self.outline = outline
+    
+    def initialize(self, canvas):
+        '''
+        Finishes creating a dot sprite on a canvas
+        
+        :param self: n/a
+        :param canvas: the overall tkinter canvas
+        '''
+        if not self.initialized:
+            self.CANVAS = canvas
+            self.rect = self.CANVAS.create_rectangle(self.x, self.y, self.x+self.w, self.y+self.h, fill=self.color, outline=self.outline)
+            self.initialized = True
+    
+    def change_size(self, newW:int, newH:int, duration:int=0):
+        '''
+        Changes the size to a new size over the duration. If the duration is 0, the size will be immediately changed
+        
+        :param self: n/a
+        :param newR: the desired radius
+        :type newR: int
+        :param duration: the duration of the change in frames
+        :type duration: int
+        '''
+        if not self.initialized:
+            return
+        
+        if duration == 0:
+            self.w = newW
+            self.h = newH
+            self.CANVAS.coords(self.x, self.y, self.x+self.w, self.y+self.h, fill=self.color, outline=self.outline)
+        else:
+            self.targetW = newW
+            self.dW = (self.targetW-self.w)/duration
+
+            self.targetH = newH
+            self.dH = (self.targetH-self.h)/duration
+    
+    def change_color(self, newColor:str):
+        '''
+        Changes the rect's color to the new color.
+        
+        :param self: n/a
+        :param newColor: a hex code for the desired color
+        :type newColor: str
+        '''
+        if not self.initialized:
+            return
+        
+        self.color = newColor
+        self.CANVAS.itemconfig(self.rect, fill=newColor)
+    
+    def update(self, framesPassed):
+        '''
+        Updates the sprite
+        
+        :param self: n/a
+        :param framesPassed: the overall frame count
+        '''
+        super().base_update(framesPassed)
+
+        if not self.initialized:
+            return
+        
+        if self.wait <= 0:
+            if self.dW != 0:
+                if abs(self.targetW-self.w) <= abs(self.dW*2):
+                    self.dW = 0
+                    self.change_size(self.targetW)
+                else:
+                    self.change_size(self.w+self.dW)
+            if self.dH != 0:
+                if abs(self.targetH-self.h) <= abs(self.dh*2):
+                    self.dh = 0
+                    self.change_size(self.targetH)
+                else:
+                    self.change_size(self.h+self.dh)
+
 class Text():
     def __init__(self, text:str, width:int, x:int=0, y:int=0, font:str="Calibri", fontSize:int=50, color:str="#000000", justify:str="center", autoSize:bool=True, maxSize:int=100):
         '''
