@@ -230,6 +230,20 @@ class Dot(Sprite):
         
         self.color = newColor
         self.CANVAS.itemconfig(self.dot, fill=newColor)
+
+    def change_outline_color(self, newColor:str):
+        '''
+        Changes the dot's color to the new color.
+        
+        :param self: n/a
+        :param newColor: a hex code for the desired color
+        :type newColor: str
+        '''
+        if not self.initialized:
+            return
+        
+        self.outline = newColor
+        self.CANVAS.itemconfig(self.dot, outline=newColor)
     
     def update(self, framesPassed):
         '''
@@ -350,15 +364,21 @@ class Rect(Sprite):
             return
         
         if self.wait <= 0:
-            if self.dR != 0:
-                if abs(self.targetR-self.r) <= abs(self.dR*2):
-                    self.dR = 0
-                    self.change_size(self.targetR)
+            if self.dW != 0:
+                if abs(self.targetW-self.w) <= abs(self.dW*2):
+                    self.dW = 0
+                    self.change_size(self.targetW)
                 else:
-                    self.change_size(self.r+self.dR)
+                    self.change_size(self.w+self.dW)
+            if self.dH != 0:
+                if abs(self.targetH-self.h) <= abs(self.dh*2):
+                    self.dh = 0
+                    self.change_size(self.targetH)
+                else:
+                    self.change_size(self.h+self.dh)
 
 class Text():
-    def __init__(self, text:str, width:int, x:int=0, y:int=0, font:str="Calibri", fontSize:int=50, color:str="#000000", justify:str="left", autoSize:bool=True, maxSize:int=100):
+    def __init__(self, text:str, width:int, x:int=0, y:int=0, font:str="Calibri", fontSize:int=50, color:str="#000000", justify:str="center", autoSize:bool=True, maxSize:int=100):
         '''
         Sets up a text sprite
         
@@ -466,6 +486,8 @@ class Text():
     
     def auto_size_text(self):
         if self.autoSize:
+            if self.text == "":
+                return
             currFont = tkFont.Font(family=self.font, size=self.fontSize)
             textWidth = currFont.measure(self.text)
             scale = self.width/textWidth
@@ -575,6 +597,25 @@ class Text():
                     else:
                         self.change_text(self.targetText[:int(self.charIdx)])
 
+class Button():
+    def __init__(self, attachedSprite, returnSignal):
+        self.attachedSprite = attachedSprite
+        self.returnSignal = returnSignal
+    
+    def clicked(self, mouseX, mouseY) -> bool:
+        if type(self.attachedSprite) == Dot:
+            if (mouseX < self.attachedSprite.x+self.attachedSprite.r) and (mouseX > self.attachedSprite.x-self.attachedSprite.r):
+                if (mouseY < self.attachedSprite.y+self.attachedSprite.r) and (mouseY > self.attachedSprite.y-self.attachedSprite.r):
+                    return True
+        else:
+            if (mouseX < self.attachedSprite.x+self.attachedSprite.w) and (mouseX > self.attachedSprite.x):
+                if (mouseY < self.attachedSprite.y+self.attachedSprite.h) and (mouseY > self.attachedSprite.y):
+                    return True
+        return False
+
+    def getSignal(self):
+        return self.returnSignal
+
 class VisCanvas():
     def __init__(self, canvas, screenWidth:int, screenHeight:int):
         '''
@@ -594,6 +635,7 @@ class VisCanvas():
         self.framesPassed = 0
 
         self.allSprites = []
+        self.allButtons = []
         self.taggedSprites = {}
         self.numSprites = 0
 
@@ -645,6 +687,12 @@ class VisCanvas():
                     self.taggedSprites[tag].append(newSprite)
                 else:
                     self.taggedSprites[tag] = [newSprite]
+    
+    def add_button_and_sprite(self, attachedSprite, returnSignal, tags:list|str=[]):
+        self.add_sprite(attachedSprite, tags)
+
+        newButton = Button(attachedSprite, returnSignal)
+        self.allButtons.append(newButton)
 
     def get_sprites_with_tag(self, tag:str) -> list:
         '''
@@ -703,3 +751,11 @@ class VisCanvas():
     
     def get_text_input(self) -> str:
         return self.textInput
+    
+    def update_mouse_click(self, clickX, clickY):
+        print(clickX, ",", clickY)
+        returnSignals = []
+        for but in self.allButtons:
+            if but.clicked(clickX, clickY):
+                returnSignals.append(but.getSignal())
+        return returnSignals

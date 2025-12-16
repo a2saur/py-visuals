@@ -11,7 +11,7 @@ FPS = 30
 
 root = tk.Tk(screenName="")
 
-canvas = tk.Canvas(root, width=800, height=400, bg="#000")
+canvas = tk.Canvas(root, width=WIDTH, height=HEIGHT, bg="#000")
 canvas.pack()
 
 cv = visC.VisCanvas(canvas, WIDTH, HEIGHT)
@@ -23,6 +23,9 @@ keyCodeText = visC.Text("Hello", 500, 100, 150, color="#FFF", autoSize=False)
 cv.add_sprite(keyCodeText, "text")
 keyCodeText2 = visC.Text("A", 500, 100, 300, color="#FFF", autoSize=True)
 cv.add_sprite(keyCodeText2, "text")
+
+cv.add_button_and_sprite(visC.Rect("#aaa", "#aaa", 100, 50, 10, 10), "button1")
+
 cv.start_text_input()
 ### CODE END
 
@@ -39,6 +42,17 @@ def onKeyPress(event):
     keyCodeText2.change_text(cv.get_text_input())
     ### CODE END
 
+def get_mouse_coords(event):
+    clickX = event.x
+    clickY = event.y
+
+    signals = cv.update_mouse_click(clickX, clickY)
+    ### CODE START - handle mouse click
+    if len(signals) > 0:
+        if signals[0] == "button1":
+            print("yay")
+    ### CODE END
+
 
 def update():
     ### CODE START - general update stuff
@@ -51,6 +65,7 @@ def update():
     canvas.after(int(1000/FPS), update)  # ~30 FPS
 
 root.bind('<KeyPress>', onKeyPress)
+root.bind('<Button-1>', get_mouse_coords)
 
 update()
 root.mainloop()
