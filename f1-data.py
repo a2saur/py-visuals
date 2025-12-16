@@ -163,6 +163,8 @@ else:
         # needs to update
         sessionData, sessionDataLastUpdated = get_session_data()
 
+print("Got session info")
+
 # --- get meeting + session key ---
 meeting_keys = get_values_by_key(sessionData, "meeting_key")
 session_keys = get_values_by_key(sessionData, "session_key")
@@ -175,10 +177,14 @@ session_key = 9078
 raceIdx = meeting_keys.index(meeting_key)
 print(meeting_key, ", ", session_key)
 
+print("Got keys")
+
 # --- get the drivers for that meeting ---
 driverData = fetch_and_write_data(DATA_FOLDER+"m"+str(meeting_key)+"_s"+str(session_key)+"_drivers.txt", 
                                   "drivers?meeting_key="+str(meeting_key)+"&session_key="+str(session_key))
 driverNums = get_values_by_key(driverData, "driver_number")
+
+print("Got driver info")
 
 # --- get each driver's locations ---
 startTime = datetime.fromisoformat(sessionData[raceIdx]['date_start'])
@@ -209,6 +215,8 @@ for dNum in driverNums:
     else:
         driverLocData[dNum] = eval(driverLocs)
 
+print("Got driver location")
+
 # --- get the track dimensions ---
 # TODO add track image?
 # pick random 5 drivers, get the max and min coords of all locations
@@ -230,33 +238,34 @@ del tempXVals
 del tempYVals
 del tempZVals
 
+print("Got track info")
+
 # --- get each driver's positions ---
-driverPosData = {}
-for dNum in driverNums:
-    driverPos = read_file(DATA_FOLDER+"m"+str(meeting_key)+"_s"+str(session_key)+"_d"+str(dNum)+"_positions.txt")
-    if driverPos == -1:
-        print("Fetching data for driver "+str(dNum))
-        # doesn't exist, get data
-        driverPos = []
-        t = startTime
-        while t < endTime:
-            t2 = t + timedelta(minutes=3) # Go by 3 minute intervals
+# driverPosData = {}
+# for dNum in driverNums:
+#     driverPos = read_file(DATA_FOLDER+"m"+str(meeting_key)+"_s"+str(session_key)+"_d"+str(dNum)+"_positions.txt")
+#     if driverPos == -1:
+#         print("Fetching data for driver "+str(dNum))
+#         # doesn't exist, get data
+#         driverPos = []
+#         t = startTime
+#         while t < endTime:
+#             t2 = t + timedelta(minutes=3) # Go by 3 minute intervals
 
-            driverPos += fetch_data("position?meeting_key="+str(meeting_key)+"&session_key="+str(session_key)+"&driver_number="+str(dNum)+"&date>="+t.replace(tzinfo=None).isoformat()+"&date<="+t2.replace(tzinfo=None).isoformat())
+#             driverPos += fetch_data("position?meeting_key="+str(meeting_key)+"&session_key="+str(session_key)+"&driver_number="+str(dNum)+"&date>="+t.replace(tzinfo=None).isoformat()+"&date<="+t2.replace(tzinfo=None).isoformat())
 
-            t = t2
-            time.sleep(0.5)
+#             t = t2
+#             time.sleep(0.5)
     
-        filteredData = get_data_per_interval(driverPos, startTime, location=False)
-        driverPosData[dNum] = filteredData
-        file = open(DATA_FOLDER+"m"+str(meeting_key)+"_s"+str(session_key)+"_d"+str(dNum)+"_positions.txt", "w")
-        file.write(str(filteredData))
-        file.close()
-        time.sleep(5)
-        print("Finished fectching data for driver "+str(dNum)+"\n")
-    else:
-        driverPosData[dNum] = eval(driverPos)
-
+#         filteredData = get_data_per_interval(driverPos, startTime, location=False)
+#         driverPosData[dNum] = filteredData
+#         file = open(DATA_FOLDER+"m"+str(meeting_key)+"_s"+str(session_key)+"_d"+str(dNum)+"_positions.txt", "w")
+#         file.write(str(filteredData))
+#         file.close()
+#         time.sleep(5)
+#         print("Finished fectching data for driver "+str(dNum)+"\n")
+#     else:
+#         driverPosData[dNum] = eval(driverPos)
 
 
 # --- VISUALS ---
