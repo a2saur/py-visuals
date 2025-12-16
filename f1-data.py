@@ -16,12 +16,12 @@ REPLAY_MAP_INFO = {
     'map-width':400,
     'map-height':250,
     'map-x-offset':50,
-    'map-y-offset':100,
-    'dot-pos-size':5,
+    'map-y-offset':150,
+    'dot-pos-size':10,
     'x-pos-offset':600,
     'y-pos-offset':100,
     'x-pos-spacing':200,
-    'y-pos-spacing':25,
+    'y-pos-spacing':40,
     'title-width':700,
     'subtitle-width':700,
 }
@@ -185,9 +185,6 @@ startTime = datetime.fromisoformat(sessionData[raceIdx]['date_start'])
 endTime = datetime.fromisoformat(sessionData[raceIdx]['date_end'])
 driverLocData = {}
 for dNum in driverNums:
-    # driverLocData[dNum] = fetch_and_write_data(DATA_FOLDER+"m"+str(meeting_key)+"_s"+str(session_key)+"_d"+str(dNum)+"_locs.txt",
-    #                                            "location?meeting_key="+str(meeting_key)+"&session_key="+str(session_key)+"&driver_number="+str(dNum))
-
     driverLocs = read_file(DATA_FOLDER+"m"+str(meeting_key)+"_s"+str(session_key)+"_d"+str(dNum)+"_locs.txt")
     if driverLocs == -1:
         print("Fetching data for driver "+str(dNum))
@@ -210,9 +207,7 @@ for dNum in driverNums:
         time.sleep(5)
         print("Finished fectching data for driver "+str(dNum)+"\n")
     else:
-        # print("Getting data for driver "+str(dNum))
         driverLocData[dNum] = eval(driverLocs)
-        # print("Finished getting data for driver "+str(dNum)+"\n")
 
 # --- get the track dimensions ---
 # TODO add track image?
@@ -260,9 +255,7 @@ for dNum in driverNums:
         time.sleep(5)
         print("Finished fectching data for driver "+str(dNum)+"\n")
     else:
-        # print("Getting data for driver "+str(dNum))
         driverPosData[dNum] = eval(driverPos)
-        # print("Finished getting data for driver "+str(dNum)+"\n")
 
 
 
@@ -302,23 +295,20 @@ cv.add_sprite(f1RaceSubtitle, "race-info")
 f1RaceSubtitle.delay(30)
 f1RaceSubtitle.change_text(subtitle, 30)
 
-timeText = visC.Text("", REPLAY_MAP_INFO["subtitle-width"], 25, HEIGHT-50, color="#FFF", maxSize=25)
+timeText = visC.Text("", REPLAY_MAP_INFO["subtitle-width"], 25, HEIGHT-50, color="#FFF", maxSize=20)
 cv.add_sprite(timeText, "race-info")
 # --- make driver location + position dots
 driverLocDots = {}
 driverLocTime = {}
 driverLocIdx = {}
-
 driverPosDots = {}
-driverPosText = {}
-driverPosTime = {}
-driverPosIdx = {}
+dPos = 0
 for dNum in driverNums:
     dIdx = driverNums.index(dNum)
 
     # add location dot
     dLoc = transform_locations([driverLocData[dNum][0]['x'], driverLocData[dNum][0]['y']], MAXCOORDS, MINCOORDS, [REPLAY_MAP_INFO["map-width"], REPLAY_MAP_INFO['map-height']])
-    dLocDot = visC.Dot("#"+driverData[dIdx]['team_colour'], "#FFF", REPLAY_MAP_INFO['dot-size'], dLoc[0]+REPLAY_MAP_INFO['map-x-offset'], dLoc[1]+REPLAY_MAP_INFO['map-y-offset'])
+    dLocDot = visC.Dot("#"+driverData[dIdx]['team_colour'], "#000", REPLAY_MAP_INFO['dot-size'], dLoc[0]+REPLAY_MAP_INFO['map-x-offset'], dLoc[1]+REPLAY_MAP_INFO['map-y-offset'])
     
     cv.add_sprite(dLocDot, ["map-dot"])
     driverLocDots[dNum] = dLocDot
@@ -326,21 +316,22 @@ for dNum in driverNums:
     driverLocIdx[dNum] = 0
     
     # add position dot
-    dPos = driverPosData[dNum][0]['position']
-    dPosDot = visC.Dot("#"+driverData[dIdx]['team_colour'], "#FFF", REPLAY_MAP_INFO["dot-pos-size"], (int((dPos-1)/10)*REPLAY_MAP_INFO["x-pos-spacing"])+REPLAY_MAP_INFO["x-pos-offset"], (((dPos-1)%10)*REPLAY_MAP_INFO["y-pos-spacing"])+REPLAY_MAP_INFO["y-pos-offset"]+REPLAY_MAP_INFO["dot-pos-size"]*2)
-    dPosText = visC.Text(driverData[dIdx]['name_acronym'], 100, (int((dPos-1)/10)*REPLAY_MAP_INFO["x-pos-spacing"])+REPLAY_MAP_INFO["x-pos-offset"]+(REPLAY_MAP_INFO["dot-pos-size"]*3), (((dPos-1)%10)*REPLAY_MAP_INFO["y-pos-spacing"])+REPLAY_MAP_INFO["y-pos-offset"], color="#FFF", autoSize=False, fontSize=15)
-    
-    cv.add_sprite(dPosDot, ["pos-dot"])
-    cv.add_sprite(dPosText, ["pos-name-text"])
+    # dPos = driverPosData[dNum][0]['position']
+    # dPosDot = visC.Dot("#"+driverData[dIdx]['team_colour'], "#FFF", REPLAY_MAP_INFO["dot-pos-size"], (int((dPos-1)/10)*REPLAY_MAP_INFO["x-pos-spacing"])+REPLAY_MAP_INFO["x-pos-offset"], (((dPos-1)%10)*REPLAY_MAP_INFO["y-pos-spacing"])+REPLAY_MAP_INFO["y-pos-offset"]+REPLAY_MAP_INFO["dot-pos-size"]*2)
+    dPosDot = visC.Dot("#"+driverData[dIdx]['team_colour'], "#"+driverData[dIdx]['team_colour'], REPLAY_MAP_INFO["dot-pos-size"], (int(dPos/10)*REPLAY_MAP_INFO["x-pos-spacing"])+REPLAY_MAP_INFO["x-pos-offset"], ((dPos%10)*REPLAY_MAP_INFO["y-pos-spacing"])+REPLAY_MAP_INFO["y-pos-offset"]+REPLAY_MAP_INFO["dot-pos-size"])
+    dPosText = visC.Text(driverData[dIdx]['name_acronym'], 100, (int(dPos/10)*REPLAY_MAP_INFO["x-pos-spacing"])+REPLAY_MAP_INFO["x-pos-offset"]+(REPLAY_MAP_INFO["dot-pos-size"]*3), ((dPos%10)*REPLAY_MAP_INFO["y-pos-spacing"])+REPLAY_MAP_INFO["y-pos-offset"], color="#FFF", autoSize=False, fontSize=15)
+    dPos += 1
+
     driverPosDots[dNum] = dPosDot
-    driverPosText[dNum] = dPosText
-    driverPosTime[dNum] = startTime
-    driverPosIdx[dNum] = 0
 
-for p in range(20):
-    posText = visC.Text(str(p)+".", 100, (int((p-1)/10)*REPLAY_MAP_INFO["x-pos-spacing"])+REPLAY_MAP_INFO["x-pos-offset"]-(REPLAY_MAP_INFO["dot-pos-size"]*6), (((p-1)%10)*REPLAY_MAP_INFO["y-pos-spacing"])+REPLAY_MAP_INFO["y-pos-offset"], color="#FFF", autoSize=False, fontSize=15)
-    cv.add_sprite(posText)
+    # cv.add_sprite(dPosDot, ["pos-dot", str(dNum)])
+    cv.add_button_and_sprite(dPosDot, str(dNum))
+    cv.add_sprite(dPosText, ["pos-name-text"])
 
+# -- info text
+driverInfoText = visC.Text("", 500, 25, HEIGHT-75, maxSize=20, color="#FFF")
+highlightedDriver = -1
+cv.add_sprite(driverInfoText)
 
 currTime = startTime
 ### CODE END
@@ -355,12 +346,34 @@ def onKeyPress(event):
     ### CODE END
 
 def get_mouse_coords(event):
+    global driverInfoText
+    global driverData
+    global highlightedDriver
+    global driverInfoText
+    global driverLocDots
+    global driverPosDots
+
     clickX = event.x
     clickY = event.y
 
-    cv.update_mouse_click(clickX, clickY)
+    signals = cv.update_mouse_click(clickX, clickY)
     ### CODE START - handle mouse click
-    
+    if len(signals) > 0:
+        dNum = int(signals[0])
+        dIdx = get_values_by_key(driverData, "driver_number").index(dNum)
+
+        if highlightedDriver != -1:
+            # reset last highlight
+            driverLocDots[highlightedDriver].change_outline_color("#000")
+            driverLocDots[highlightedDriver].change_size(REPLAY_MAP_INFO["dot-size"], 3)
+
+            driverPosDots[highlightedDriver].change_outline_color("#"+driverData[dIdx]["team_colour"])
+
+        driverLocDots[dNum].change_size(REPLAY_MAP_INFO["dot-size"]*2, 5)
+        driverLocDots[dNum].change_outline_color("#FFF")
+        driverPosDots[dNum].change_outline_color("#FFF")
+        highlightedDriver = dNum
+        driverInfoText.change_text(driverData[dIdx]["first_name"]+" "+driverData[dIdx]["last_name"], 15)
     ### CODE END
 
 
@@ -372,11 +385,6 @@ def update():
     global driverLocDots
     global driverLocTime
     global driverLocIdx
-
-    global driverPosDots
-    global driverPosText
-    global driverPosTime
-    global driverPosIdx
     ### CODE START - general update stuff
     if currTime < endTime:
         currTime += timedelta(milliseconds=int(1000/FPS))*TIMESCALE # update time
@@ -395,21 +403,6 @@ def update():
                 dLoc = transform_locations([driverLocData[dNum][driverLocIdx[dNum]]['x'], driverLocData[dNum][driverLocIdx[dNum]]['y']], MAXCOORDS, MINCOORDS, [REPLAY_MAP_INFO["map-width"], REPLAY_MAP_INFO['map-height']])
                 driverLocDots[dNum].change_pos(dLoc[0]+REPLAY_MAP_INFO["map-x-offset"], dLoc[1]+REPLAY_MAP_INFO["map-y-offset"])#, duration=FPS)
                 
-            if driverPosTime[dNum] != endTime and driverPosTime[dNum] < currTime:
-                # Update!
-                while driverPosTime[dNum] < currTime:
-                    driverPosIdx[dNum] += 1
-                    if driverPosIdx[dNum] >= len(driverPosData[dNum]):
-                        driverPosIdx[dNum] = len(driverPosData[dNum])-1
-                        driverPosTime[dNum] = endTime
-                        print("AAA")
-                        print(dNum)
-                        break
-                    driverPosTime[dNum] = datetime.fromisoformat(driverPosData[dNum][driverPosIdx[dNum]]['date'])
-                dPos = driverPosData[dNum][0]['position']
-                driverPosDots[dNum].change_pos((int((dPos-1)/10)*REPLAY_MAP_INFO["x-pos-spacing"])+REPLAY_MAP_INFO["x-pos-offset"], (((dPos-1)%10)*REPLAY_MAP_INFO["y-pos-spacing"])+REPLAY_MAP_INFO["y-pos-offset"]+REPLAY_MAP_INFO["dot-pos-size"]*2)#, duration=FPS)
-                driverPosText[dNum].change_pos((int((dPos-1)/10)*REPLAY_MAP_INFO["x-pos-spacing"])+REPLAY_MAP_INFO["x-pos-offset"]+(REPLAY_MAP_INFO["dot-pos-size"]*3), (((dPos-1)%10)*REPLAY_MAP_INFO["y-pos-spacing"])+REPLAY_MAP_INFO["y-pos-offset"])#, duration=FPS)
-
         timeText.change_text(currTime.isoformat())
 
     ### CODE END
@@ -420,6 +413,7 @@ def update():
     canvas.after(int(1000/FPS), update)  # ~30 FPS
 
 root.bind('<KeyPress>', onKeyPress)
+root.bind('<Button-1>', get_mouse_coords)
 
 update()
 root.mainloop()

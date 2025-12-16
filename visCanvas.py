@@ -230,6 +230,20 @@ class Dot(Sprite):
         
         self.color = newColor
         self.CANVAS.itemconfig(self.dot, fill=newColor)
+
+    def change_outline_color(self, newColor:str):
+        '''
+        Changes the dot's color to the new color.
+        
+        :param self: n/a
+        :param newColor: a hex code for the desired color
+        :type newColor: str
+        '''
+        if not self.initialized:
+            return
+        
+        self.outline = newColor
+        self.CANVAS.itemconfig(self.dot, outline=newColor)
     
     def update(self, framesPassed):
         '''
@@ -583,6 +597,25 @@ class Text():
                     else:
                         self.change_text(self.targetText[:int(self.charIdx)])
 
+class Button():
+    def __init__(self, attachedSprite, returnSignal):
+        self.attachedSprite = attachedSprite
+        self.returnSignal = returnSignal
+    
+    def clicked(self, mouseX, mouseY) -> bool:
+        if type(self.attachedSprite) == Dot:
+            if (mouseX < self.attachedSprite.x+self.attachedSprite.r) and (mouseX > self.attachedSprite.x-self.attachedSprite.r):
+                if (mouseY < self.attachedSprite.y+self.attachedSprite.r) and (mouseY > self.attachedSprite.y-self.attachedSprite.r):
+                    return True
+        else:
+            if (mouseX < self.attachedSprite.x+self.attachedSprite.w) and (mouseX > self.attachedSprite.x):
+                if (mouseY < self.attachedSprite.y+self.attachedSprite.h) and (mouseY > self.attachedSprite.y):
+                    return True
+        return False
+
+    def getSignal(self):
+        return self.returnSignal
+
 class VisCanvas():
     def __init__(self, canvas, screenWidth:int, screenHeight:int):
         '''
@@ -602,6 +635,7 @@ class VisCanvas():
         self.framesPassed = 0
 
         self.allSprites = []
+        self.allButtons = []
         self.taggedSprites = {}
         self.numSprites = 0
 
@@ -653,6 +687,12 @@ class VisCanvas():
                     self.taggedSprites[tag].append(newSprite)
                 else:
                     self.taggedSprites[tag] = [newSprite]
+    
+    def add_button_and_sprite(self, attachedSprite, returnSignal, tags:list|str=[]):
+        self.add_sprite(attachedSprite, tags)
+
+        newButton = Button(attachedSprite, returnSignal)
+        self.allButtons.append(newButton)
 
     def get_sprites_with_tag(self, tag:str) -> list:
         '''
@@ -713,5 +753,9 @@ class VisCanvas():
         return self.textInput
     
     def update_mouse_click(self, clickX, clickY):
-        # TODO check buttons
-        return
+        print(clickX, ",", clickY)
+        returnSignals = []
+        for but in self.allButtons:
+            if but.clicked(clickX, clickY):
+                returnSignals.append(but.getSignal())
+        return returnSignals

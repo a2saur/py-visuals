@@ -23,6 +23,9 @@ keyCodeText = visC.Text("Hello", 500, 100, 150, color="#FFF", autoSize=False)
 cv.add_sprite(keyCodeText, "text")
 keyCodeText2 = visC.Text("A", 500, 100, 300, color="#FFF", autoSize=True)
 cv.add_sprite(keyCodeText2, "text")
+
+cv.add_button_and_sprite(visC.Rect("#aaa", "#aaa", 100, 50, 10, 10), "button1")
+
 cv.start_text_input()
 ### CODE END
 
@@ -43,9 +46,11 @@ def get_mouse_coords(event):
     clickX = event.x
     clickY = event.y
 
-    cv.update_mouse_click(clickX, clickY)
+    signals = cv.update_mouse_click(clickX, clickY)
     ### CODE START - handle mouse click
-    
+    if len(signals) > 0:
+        if signals[0] == "button1":
+            print("yay")
     ### CODE END
 
 
@@ -60,6 +65,7 @@ def update():
     canvas.after(int(1000/FPS), update)  # ~30 FPS
 
 root.bind('<KeyPress>', onKeyPress)
+root.bind('<Button-1>', get_mouse_coords)
 
 update()
 root.mainloop()
