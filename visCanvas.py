@@ -350,15 +350,21 @@ class Rect(Sprite):
             return
         
         if self.wait <= 0:
-            if self.dR != 0:
-                if abs(self.targetR-self.r) <= abs(self.dR*2):
-                    self.dR = 0
-                    self.change_size(self.targetR)
+            if self.dW != 0:
+                if abs(self.targetW-self.w) <= abs(self.dW*2):
+                    self.dW = 0
+                    self.change_size(self.targetW)
                 else:
-                    self.change_size(self.r+self.dR)
+                    self.change_size(self.w+self.dW)
+            if self.dH != 0:
+                if abs(self.targetH-self.h) <= abs(self.dh*2):
+                    self.dh = 0
+                    self.change_size(self.targetH)
+                else:
+                    self.change_size(self.h+self.dh)
 
 class Text():
-    def __init__(self, text:str, width:int, x:int=0, y:int=0, font:str="Calibri", fontSize:int=50, color:str="#000000", justify:str="left", autoSize:bool=True, maxSize:int=100):
+    def __init__(self, text:str, width:int, x:int=0, y:int=0, font:str="Calibri", fontSize:int=50, color:str="#000000", justify:str="center", autoSize:bool=True, maxSize:int=100):
         '''
         Sets up a text sprite
         
@@ -466,6 +472,8 @@ class Text():
     
     def auto_size_text(self):
         if self.autoSize:
+            if self.text == "":
+                return
             currFont = tkFont.Font(family=self.font, size=self.fontSize)
             textWidth = currFont.measure(self.text)
             scale = self.width/textWidth

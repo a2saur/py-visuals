@@ -11,7 +11,7 @@ FPS = 30
 
 root = tk.Tk(screenName="")
 
-canvas = tk.Canvas(root, width=800, height=400, bg="#000")
+canvas = tk.Canvas(root, width=WIDTH, height=HEIGHT, bg="#000")
 canvas.pack()
 
 cv = visC.VisCanvas(canvas, WIDTH, HEIGHT)
