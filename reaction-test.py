@@ -8,7 +8,7 @@ HEIGHT = 400
 FPS = 30
 ### CODE END
 
-root = tk.Tk(screenName="")
+root = tk.Tk()
 
 canvas = tk.Canvas(root, width=800, height=400, bg="#000")
 canvas.pack()

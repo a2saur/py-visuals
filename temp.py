@@ -36,7 +36,7 @@ mapInfo = {
     "Monaco":{"scale":0.37, "x":15, "y":75, "dot-rotation":-135, "dot-x":-130, "dot-y":-55, "dot-scale":360}
 }
 
-root = tk.Tk(screenName="F1 Display")
+root = tk.Tk()
 # root.configure(bg='#47484a') 
 canvas = tk.Canvas(root, width=WIDTH, height=HEIGHT, bg="#47484a")
 canvas.pack()

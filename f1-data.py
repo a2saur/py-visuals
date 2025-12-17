@@ -269,7 +269,7 @@ print("Got track info")
 
 
 # --- VISUALS ---
-root = tk.Tk(screenName="")
+root = tk.Tk()
 
 canvas = tk.Canvas(root, width=WIDTH, height=HEIGHT, bg="#000")
 canvas.pack()

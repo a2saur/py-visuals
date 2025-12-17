@@ -9,7 +9,7 @@ HEIGHT = 400
 FPS = 30
 ### CODE END
 
-root = tk.Tk(screenName="")
+root = tk.Tk()
 
 canvas = tk.Canvas(root, width=WIDTH, height=HEIGHT, bg="#000")
 canvas.pack()
@@ -23,6 +23,9 @@ keyCodeText = visC.Text("Hello", 500, 100, 150, color="#FFF", autoSize=False)
 cv.add_sprite(keyCodeText, "text")
 keyCodeText2 = visC.Text("A", 500, 100, 300, color="#FFF", autoSize=True)
 cv.add_sprite(keyCodeText2, "text")
+
+slider1 = visC.HorizontalSlider("#000", "#FFF", "#FFF", "#FFF", 250, 15, 250, HEIGHT-100)
+cv.add_sprite(slider1)
 
 cv.add_button_and_sprite(visC.Rect("#aaa", "#aaa", 100, 50, 10, 10), "button1")
 

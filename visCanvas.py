@@ -111,7 +111,10 @@ class Sprite():
         if duration == 0:
             self.x = newX
             self.y = newY
-            self.CANVAS.coords(self.dot, self.x-self.r, self.y-self.r, self.x+self.r, self.y+self.r)
+            try:
+                self.CANVAS.coords(self.dot, self.x-self.r, self.y-self.r, self.x+self.r, self.y+self.r)
+            except AttributeError:
+                self.CANVAS.coords(self.rect, self.x-self.r, self.y-self.r, self.x+self.r, self.y+self.r)
         else:
             self.endChange = duration
             self.dX = (newX-self.x)/duration
@@ -377,41 +380,27 @@ class Rect(Sprite):
                 else:
                     self.change_size(self.h+self.dh)
 
-class Slider(Sprite):
-    def __init__(self, color:str="white", outline:str="white", w:int=5, h:int=5, x:int=0, y:int=0, gravityScale:float=0):
-        '''
-        Sets up a rectangle sprite
-        
-        :param self: n/a
-        :param color: a hex code for the color of the dot
-        :type color: str
-        :param outline: a hex code for the color of the outline
-        :type outline: str
-        :param w: the width of the rectangle
-        :type w: int
-        :param h: the height of the rectangle
-        :type h: int
-        :param x: the x position of the upper left corner of the rectangle
-        :type x: int
-        :param y: the y position of the upper left corner of the rectangle
-        :type y: int
-        :param gravityScale: the amount of gravity that will be applied to the object, where 1 corresponds to +1 pixel/frame
-        :type gravityScale: float
-        '''
+class HorizontalSlider(Sprite):
+    def __init__(self, bgColor:str="black", bgOutline:str="white", buttonColor:str="white", buttonOutline:str="white", w:int=5, h:int=5, x:int=0, y:int=0, gravityScale:float=0):
         super().__init__(x, y, gravityScale)
+
+        self.x = x
+        self.y = y
 
         self.w = w
         self.h = h
 
-        self.targetW = 0
-        self.dW = 0
-        self.targetH = 0
-        self.dH = 0
+        self.sliderBg = Rect(bgColor, bgOutline, w, h, x, y)
+        self.sliderButton = Rect(buttonColor, buttonOutline, h, h, x, y)
 
         self.wait = 0
 
-        self.color = color
-        self.outline = outline
+        self.bgColor = bgColor
+        self.bgOutline = bgOutline
+        self.buttonColor = buttonColor
+        self.buttonOutline = buttonOutline
+
+        self.sliderVal = 0
     
     def initialize(self, canvas):
         '''
@@ -421,47 +410,29 @@ class Slider(Sprite):
         :param canvas: the overall tkinter canvas
         '''
         if not self.initialized:
-            self.CANVAS = canvas
-            self.rect = self.CANVAS.create_rectangle(self.x, self.y, self.x+self.w, self.y+self.h, fill=self.color, outline=self.outline)
+            self.sliderBg.initialize(canvas)
+            self.sliderButton.initialize(canvas)
             self.initialized = True
     
-    def change_size(self, newW:int, newH:int, duration:int=0):
-        '''
-        Changes the size to a new size over the duration. If the duration is 0, the size will be immediately changed
-        
-        :param self: n/a
-        :param newR: the desired radius
-        :type newR: int
-        :param duration: the duration of the change in frames
-        :type duration: int
-        '''
-        if not self.initialized:
-            return
-        
-        if duration == 0:
-            self.w = newW
-            self.h = newH
-            self.CANVAS.coords(self.x, self.y, self.x+self.w, self.y+self.h, fill=self.color, outline=self.outline)
-        else:
-            self.targetW = newW
-            self.dW = (self.targetW-self.w)/duration
+    def move_slider(self, mouseX):
+        if self.isClicked:
+            if mouseX < self.x:
+                self.sliderButton.change_pos(self.x, self.y)
+            elif mouseX > self.x+self.w:
+                self.sliderButton.change_pos(self.x+self.w, self.y)
+            else:
+                self.sliderButton.change_pos(mouseX, self.y)
 
-            self.targetH = newH
-            self.dH = (self.targetH-self.h)/duration
-    
-    def change_color(self, newColor:str):
-        '''
-        Changes the rect's color to the new color.
-        
-        :param self: n/a
-        :param newColor: a hex code for the desired color
-        :type newColor: str
-        '''
-        if not self.initialized:
-            return
-        
-        self.color = newColor
-        self.CANVAS.itemconfig(self.rect, fill=newColor)
+    def clicked(self, mouseX, mouseY):
+        if (mouseX < self.sliderButton.x+self.sliderButton.w) and (mouseX > self.sliderButton.x):
+            if (mouseY < self.sliderButton.y+self.sliderButton.h) and (mouseY > self.sliderButton.y):
+                self.isClicked = True
+                return True
+        self.isClicked = False
+        return False
+
+    def unClick(self):
+        self.isClicked = False
     
     def update(self, framesPassed):
         '''
@@ -476,18 +447,7 @@ class Slider(Sprite):
             return
         
         if self.wait <= 0:
-            if self.dW != 0:
-                if abs(self.targetW-self.w) <= abs(self.dW*2):
-                    self.dW = 0
-                    self.change_size(self.targetW)
-                else:
-                    self.change_size(self.w+self.dW)
-            if self.dH != 0:
-                if abs(self.targetH-self.h) <= abs(self.dh*2):
-                    self.dh = 0
-                    self.change_size(self.targetH)
-                else:
-                    self.change_size(self.h+self.dh)
+            pass
 
 class Text():
     def __init__(self, text:str, width:int, x:int=0, y:int=0, font:str="Calibri", fontSize:int=50, color:str="#000000", justify:str="center", autoSize:bool=True, maxSize:int=100):
@@ -748,6 +708,7 @@ class VisCanvas():
 
         self.allSprites = []
         self.allButtons = []
+        self.allSliders = []
         self.taggedSprites = {}
         self.numSprites = 0
 
@@ -786,6 +747,11 @@ class VisCanvas():
 
         newSprite.initialize(self.canvas)
         self.allSprites.append(newSprite)
+        if type(newSprite) == Button:
+            self.allButtons.append(newSprite)
+        elif type(newSprite) == HorizontalSlider:
+            self.allSliders.append(newSprite)
+
         if type(tags) == str:
             # just one tag
             if tags in self.taggedSprites.keys():
@@ -870,4 +836,8 @@ class VisCanvas():
         for but in self.allButtons:
             if but.clicked(clickX, clickY):
                 returnSignals.append(but.getSignal())
+        
+        for sli in self.allSliders:
+            if sli.clicked(clickX, clickY):
+                sli.move_slider(clickX)
         return returnSignals
