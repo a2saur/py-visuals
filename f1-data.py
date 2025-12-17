@@ -27,8 +27,8 @@ REPLAY_MAP_INFO = {
 }
 
 ### CODE START -- overall parameters
-WIDTH = 930
-HEIGHT = 510
+WIDTH = 640
+HEIGHT = 360
 FPS = 30
 TIMESCALE = 60
 ### CODE END
